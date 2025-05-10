@@ -43,3 +43,6 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+scripts/project-semester4-ce288-firebase-adminsdk-fbsvc-991b86d931.json
+pubspec.yaml
+pubspec.lock

@@ -14,55 +14,68 @@ class KeranjangPage extends StatelessWidget {
 
   void _hapusItem(String uid, String docId) async {
     await FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
         .collection('keranjang')
+        .doc(uid)
+        .collection('items')
         .doc(docId)
         .delete();
   }
 
   void _updateJumlah(String uid, String docId, int jumlah) {
     FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
         .collection('keranjang')
+        .doc(uid)
+        .collection('items')
         .doc(docId)
         .update({'jumlah': jumlah});
   }
 
   void _checkout(BuildContext context, String uid, List<QueryDocumentSnapshot> items) async {
-    final pesananRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .collection('pesanan');
+  final pesananRef = FirebaseFirestore.instance.collection('pesanan').doc();
 
-    final batch = FirebaseFirestore.instance.batch();
+  int totalHarga = 0;
 
-    for (var item in items) {
-      final data = item.data() as Map<String, dynamic>;
-      final docRef = pesananRef.doc();
-
-      batch.set(docRef, {
-        ...data,
-        'tanggal': Timestamp.now(),
-        'status': 'diproses',
-      });
-
-      final keranjangRef = FirebaseFirestore.instance
-          .collection('users')
-          .doc(uid)
-          .collection('keranjang')
-          .doc(item.id);
-
-      batch.delete(keranjangRef);
-    }
-
-    await batch.commit();
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Checkout berhasil, semua item diproses.")),
-    );
+  for (var item in items) {
+    final data = item.data() as Map<String, dynamic>;
+    final harga = getInt(data['harga']);
+    final jumlah = getInt(data['jumlah']);
+    totalHarga += harga * jumlah;
   }
+
+  // Tambahkan data pesanan utama
+  await pesananRef.set({
+    'userId': uid,
+    'tanggal': Timestamp.now(),
+    'status': 'Diproses',
+    'total_harga': totalHarga,
+  });
+
+  // Tambahkan detail pesanan
+  for (var item in items) {
+    final data = item.data() as Map<String, dynamic>;
+
+    await pesananRef.collection('detail').add({
+      'id_produk': data['id_produk'],
+      'nama_produk': data['nama_produk'],
+      'jumlah': data['jumlah'],
+      'harga': data['harga'],
+      'image': data['image'],
+    });
+
+    // Hapus item dari keranjang
+    await FirebaseFirestore.instance
+        .collection('keranjang')
+        .doc(uid)
+        .collection('items')
+        .doc(item.id)
+        .delete();
+  }
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text("Checkout berhasil, semua item diproses.")),
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -72,9 +85,9 @@ class KeranjangPage extends StatelessWidget {
       appBar: AppBar(title: const Text("Keranjang")),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
-            .collection('users')
-            .doc(uid)
             .collection('keranjang')
+            .doc(uid)
+            .collection('items')
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {

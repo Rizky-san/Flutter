@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_firebase/screen/admin/daftar_produk.dart'; 
+import 'package:flutter_firebase/screen/admin/daftar_produk.dart';
+import 'package:flutter_firebase/screen/admin/pesanan/daftar_menu.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -134,12 +135,21 @@ class DashboardScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: const [
-                Icon(Icons.home, color: Colors.black),
-                Icon(Icons.event_note, color: Colors.black),
-                Icon(Icons.hourglass_bottom, color: Colors.black),
-                Icon(Icons.group, color: Colors.black),
-                Icon(Icons.person, color: Colors.black),
+              children: [
+                const Icon(Icons.home, color: Colors.black),
+                // Event Note icon dengan navigasi ke DaftarMenu
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const DaftarMenuPesanan()),
+                    );
+                  },
+                  child: const Icon(Icons.event_note, color: Colors.black),
+                ),
+                const Icon(Icons.hourglass_bottom, color: Colors.black),
+                const Icon(Icons.group, color: Colors.black),
+                const Icon(Icons.person, color: Colors.black),
               ],
             ),
           ),

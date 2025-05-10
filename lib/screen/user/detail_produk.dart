@@ -87,15 +87,18 @@ class _DetailProdukScreenState extends State<DetailProdukScreen> {
 
   Future<void> tambahKeKeranjang(Map<String, dynamic> produk, int jumlah) async {
     final uid = FirebaseAuth.instance.currentUser!.uid;
-    final doc = FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
+    final keranjangItemRef = FirebaseFirestore.instance
         .collection('keranjang')
-        .doc(produk['id']);
+        .doc(uid)
+        .collection('items')
+        .doc(produk['id']); // ID produk sebagai ID dokumen
 
-    await doc.set({
-      ...produk,
+    await keranjangItemRef.set({
+      'id_produk': produk['id'],
+      'nama_produk': produk['nama'],
       'jumlah': jumlah,
+      'harga': produk['harga'],
+      'image': produk['image'],
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -105,20 +108,29 @@ class _DetailProdukScreenState extends State<DetailProdukScreen> {
 
   Future<void> beliSekarang(Map<String, dynamic> produk, int jumlah) async {
     final uid = FirebaseAuth.instance.currentUser!.uid;
-    final ref = FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .collection('pesanan');
+    final pesananRef = FirebaseFirestore.instance.collection('pesanan').doc();
 
-    await ref.add({
-      ...produk,
-      'jumlah': jumlah,
+    final totalHarga = jumlah * (produk['harga'] ?? 0);
+
+    // Buat pesanan utama
+    await pesananRef.set({
+      'userId': uid,
       'tanggal': Timestamp.now(),
-      'status': 'diproses',
+      'status': 'Diproses',
+      'total_harga': totalHarga,
+    });
+
+    // Tambahkan ke subcollection detail
+    await pesananRef.collection('detail').add({
+      'id_produk': produk['id'],
+      'nama_produk': produk['nama'],
+      'jumlah': jumlah,
+      'harga': produk['harga'],
+      'image': produk['image'],
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Pembelian berhasil')),
+      const SnackBar(content: Text('Pembelian berhasil dibuat')),
     );
   }
 }
