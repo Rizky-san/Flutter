@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_firebase/screen/user/detail_produk.dart';
+import 'package:flutter_firebase/screen/user/main_navigation.dart';
 
 class FavoritPage extends StatelessWidget {
   const FavoritPage({super.key});
@@ -22,6 +24,10 @@ class FavoritPage extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
 
+          if (snapshot.hasError) {
+            return const Center(child: Text("Terjadi kesalahan."));
+          }
+
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return const Center(child: Text("Belum ada produk favorit."));
           }
@@ -32,22 +38,42 @@ class FavoritPage extends StatelessWidget {
             itemCount: favoritList.length,
             itemBuilder: (context, index) {
               final item = favoritList[index];
-              final data = item.data() as Map<String, dynamic>;
+              final data = item.data() as Map<String, dynamic>?;
 
-              return ListTile(
-                leading: Image.network(
-                  data['image'] ?? '',
-                  width: 50,
-                  height: 50,
-                  fit: BoxFit.cover,
+              if (data == null) {
+                return const SizedBox.shrink();
+              }
+
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                child: ListTile(
+                  leading: data['image'] != null
+                      ? Image.network(
+                          data['image'],
+                          width: 50,
+                          height: 50,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Icon(Icons.broken_image),
+                        )
+                      : const Icon(Icons.image_not_supported),
+                  title: Text(data['nama'] ?? 'Produk'),
+                  subtitle: Text("Harga: Rp ${data['harga']}"),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DetailProdukScreen(produk: data),
+                      ),
+                    );
+                  },
                 ),
-                title: Text(data['nama'] ?? ''),
-                subtitle: Text("Harga: Rp ${data['harga']}"),
               );
             },
           );
         },
       ),
+      bottomNavigationBar: const MainNavigation(),
     );
   }
 }

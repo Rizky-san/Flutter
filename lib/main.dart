@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'provider/auth_provider.dart';
 import 'screen/auth_screen.dart';
 import 'screen/admin/dashboard_screen.dart';
-import 'screen/user/home_screen.dart';
+import 'screen/user/main_navigation.dart';
 import 'services/user_service.dart';
 import 'firebase_options.dart';
 
@@ -66,7 +66,7 @@ class SplashWrapper extends StatelessWidget {
                 if (role == 'admin') {
                   return const DashboardScreen();
                 } else {
-                  return const HomePage();
+                  return const MainNavigation(); // Navigasi utama pengguna
                 }
               } else {
                 return const AuthScreen();

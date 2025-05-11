@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_firebase/screen/admin/daftar_produk.dart';
 import 'package:flutter_firebase/screen/admin/pesanan/daftar_menu.dart';
+import 'package:flutter_firebase/screen/profile_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -149,7 +150,16 @@ class DashboardScreen extends StatelessWidget {
                 ),
                 const Icon(Icons.hourglass_bottom, color: Colors.black),
                 const Icon(Icons.group, color: Colors.black),
-                const Icon(Icons.person, color: Colors.black),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                    MaterialPageRoute(builder: (_) => const ProfilePage()),
+                    );
+                  },
+  child: const Icon(Icons.person, color: Colors.black),
+),
+
               ],
             ),
           ),

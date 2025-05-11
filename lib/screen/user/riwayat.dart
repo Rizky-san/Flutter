@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_firebase/screen/user/main_navigation.dart';
 
 class RiwayatPage extends StatelessWidget {
   const RiwayatPage({super.key});
@@ -103,6 +104,7 @@ class RiwayatPage extends StatelessWidget {
           );
         },
       ),
+      bottomNavigationBar: const MainNavigation(),
     );
   }
 }
