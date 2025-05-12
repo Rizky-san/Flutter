@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_firebase/services/notification_service.dart';
 
 class KeranjangPage extends StatelessWidget {
   const KeranjangPage({super.key});
@@ -31,51 +32,51 @@ class KeranjangPage extends StatelessWidget {
   }
 
   void _checkout(BuildContext context, String uid, List<QueryDocumentSnapshot> items) async {
-  final pesananRef = FirebaseFirestore.instance.collection('pesanan').doc();
+    final pesananRef = FirebaseFirestore.instance.collection('pesanan').doc();
+    int totalHarga = 0;
 
-  int totalHarga = 0;
+    for (var item in items) {
+      final data = item.data() as Map<String, dynamic>;
+      final harga = getInt(data['harga']);
+      final jumlah = getInt(data['jumlah']);
+      totalHarga += harga * jumlah;
+    }
 
-  for (var item in items) {
-    final data = item.data() as Map<String, dynamic>;
-    final harga = getInt(data['harga']);
-    final jumlah = getInt(data['jumlah']);
-    totalHarga += harga * jumlah;
-  }
-
-  // Tambahkan data pesanan utama
-  await pesananRef.set({
-    'userId': uid,
-    'tanggal': Timestamp.now(),
-    'status': 'Diproses',
-    'total_harga': totalHarga,
-  });
-
-  // Tambahkan detail pesanan
-  for (var item in items) {
-    final data = item.data() as Map<String, dynamic>;
-
-    await pesananRef.collection('detail').add({
-      'id_produk': data['id_produk'],
-      'nama_produk': data['nama_produk'],
-      'jumlah': data['jumlah'],
-      'harga': data['harga'],
-      'image': data['image'],
+    await pesananRef.set({
+      'userId': uid,
+      'tanggal': Timestamp.now(),
+      'status': 'Diproses',
+      'total_harga': totalHarga,
     });
 
-    // Hapus item dari keranjang
-    await FirebaseFirestore.instance
-        .collection('keranjang')
-        .doc(uid)
-        .collection('items')
-        .doc(item.id)
-        .delete();
+    for (var item in items) {
+      final data = item.data() as Map<String, dynamic>;
+
+      await pesananRef.collection('detail').add({
+        'id_produk': data['id_produk'],
+        'nama_produk': data['nama_produk'],
+        'jumlah': data['jumlah'],
+        'harga': data['harga'],
+        'image': data['image'],
+      });
+
+      await FirebaseFirestore.instance
+          .collection('keranjang')
+          .doc(uid)
+          .collection('items')
+          .doc(item.id)
+          .delete();
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Checkout berhasil, semua item diproses.")),
+    );
+
+    await NotificationService.showNotification(
+      title: 'Checkout Berhasil',
+      body: 'Semua item telah berhasil diproses.',
+    );
   }
-
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text("Checkout berhasil, semua item diproses.")),
-  );
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +117,7 @@ class KeranjangPage extends StatelessWidget {
                     final item = items[index];
                     final data = item.data() as Map<String, dynamic>;
 
-                    final nama = data['nama'] ?? '';
+                    final nama = data['nama_produk'] ?? '';
                     final harga = getInt(data['harga']);
                     final jumlah = getInt(data['jumlah']);
                     final stok = getInt(data['stok']);
@@ -152,8 +153,7 @@ class KeranjangPage extends StatelessWidget {
                                     } else {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(const SnackBar(
-                                        content: Text(
-                                            "Jumlah tidak valid atau melebihi stok."),
+                                        content: Text("Jumlah tidak valid atau melebihi stok."),
                                       ));
                                     }
                                   },
@@ -174,23 +174,20 @@ class KeranjangPage extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
                       "Total Harga Keseluruhan: Rp $totalHargaKeseluruhan",
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 12),
                     ElevatedButton(
                       onPressed: () => _checkout(context, uid, items),
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
                       child: const Text("Checkout Semua"),
                     ),
                   ],
                 ),
-              ),
+              )
             ],
           );
         },

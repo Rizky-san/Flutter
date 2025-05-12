@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_firebase/screen/user/detail_produk.dart';
-import 'package:flutter_firebase/screen/user/main_navigation.dart';
 
 class FavoritPage extends StatelessWidget {
   const FavoritPage({super.key});
@@ -73,7 +72,6 @@ class FavoritPage extends StatelessWidget {
           );
         },
       ),
-      bottomNavigationBar: const MainNavigation(),
     );
   }
 }

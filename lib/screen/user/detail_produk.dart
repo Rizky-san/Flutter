@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_firebase/services/notification_service.dart';
 
 class DetailProdukScreen extends StatefulWidget {
   final Map<String, dynamic> produk;
@@ -88,32 +89,53 @@ class _DetailProdukScreenState extends State<DetailProdukScreen> {
     );
   }
 
-  Future<void> tambahKeKeranjang(Map<String, dynamic> produk, int jumlah) async {
-    try {
-      final uid = FirebaseAuth.instance.currentUser!.uid;
-      final keranjangItemRef = FirebaseFirestore.instance
-          .collection('keranjang')
-          .doc(uid)
-          .collection('items')
-          .doc(produk['id']);
+Future<void> tambahKeKeranjang(Map<String, dynamic> produk, int jumlahBaru) async {
+  try {
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+    final keranjangItemRef = FirebaseFirestore.instance
+        .collection('keranjang')
+        .doc(uid)
+        .collection('items')
+        .doc(produk['id']);
 
-      await keranjangItemRef.set({
-        'id_produk': produk['id'],
-        'nama_produk': produk['nama'],
-        'jumlah': jumlah,
-        'harga': produk['harga'],
-        'image': produk['image'],
-      });
+    final docSnapshot = await keranjangItemRef.get();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Produk ditambahkan ke keranjang')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal menambahkan ke keranjang: $e')),
-      );
+    int jumlahLama = 0;
+
+    if (docSnapshot.exists) {
+      final existingData = docSnapshot.data()!;
+      jumlahLama = (existingData['jumlah'] ?? 0) as int;
     }
+
+    final jumlahTotal = jumlahLama + jumlahBaru;
+
+    await keranjangItemRef.set({
+      'id_produk': produk['id'],
+      'nama_produk': produk['nama'],
+      'jumlah': jumlahTotal,
+      'harga': produk['harga'],
+      'stok': produk['stok'],
+      'image': produk['image'],
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(jumlahLama > 0
+          ? 'Jumlah produk di keranjang ditambahkan'
+          : 'Produk ditambahkan ke keranjang')),
+    );
+
+    await NotificationService.showNotification(
+      title: 'Keranjang Diperbarui',
+      body: jumlahLama > 0
+          ? '${produk['nama']} jumlahnya ditambah menjadi $jumlahTotal.'
+          : '${produk['nama']} telah ditambahkan ke keranjang.',
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Gagal menambahkan ke keranjang: $e')),
+    );
   }
+}
 
   Future<void> beliSekarang(Map<String, dynamic> produk, int jumlah) async {
     try {
@@ -139,6 +161,11 @@ class _DetailProdukScreenState extends State<DetailProdukScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Pembelian berhasil dibuat')),
+      );
+
+      await NotificationService.showNotification(
+        title: 'Pembelian Berhasil',
+        body: '${produk['nama']} telah dibeli dengan jumlah $jumlah.',
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

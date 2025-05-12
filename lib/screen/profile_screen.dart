@@ -18,6 +18,11 @@ class _ProfilePageState extends State<ProfilePage> {
   bool isEditing = false;
   bool isLoading = true;
 
+  // Data backup untuk tombol Batal
+  String _originalNama = '';
+  String _originalTelepon = '';
+  String _originalAlamat = '';
+
   final InputDecorationTheme _inputDecorationTheme = const InputDecorationTheme(
     labelStyle: TextStyle(color: Colors.black),
     enabledBorder: OutlineInputBorder(
@@ -51,6 +56,11 @@ class _ProfilePageState extends State<ProfilePage> {
       email = FirebaseAuth.instance.currentUser!.email ?? '';
     }
 
+    // Simpan data asli
+    _originalNama = namaController.text;
+    _originalTelepon = teleponController.text;
+    _originalAlamat = alamatController.text;
+
     setState(() {
       isLoading = false;
     });
@@ -66,6 +76,11 @@ class _ProfilePageState extends State<ProfilePage> {
       'email': email,
     });
 
+    // Update data backup setelah simpan
+    _originalNama = namaController.text;
+    _originalTelepon = teleponController.text;
+    _originalAlamat = alamatController.text;
+
     setState(() {
       isEditing = false;
     });
@@ -73,6 +88,22 @@ class _ProfilePageState extends State<ProfilePage> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Profil berhasil diperbarui')),
     );
+  }
+
+  void cancelEdit() {
+    setState(() {
+      namaController.text = _originalNama;
+      teleponController.text = _originalTelepon;
+      alamatController.text = _originalAlamat;
+      isEditing = false;
+    });
+  }
+
+  Future<void> logout() async {
+    await FirebaseAuth.instance.signOut();
+    if (context.mounted) {
+      Navigator.of(context).pushReplacementNamed('/login');
+    }
   }
 
   @override
@@ -90,23 +121,14 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text("Profil Pengguna"),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => Navigator.pop(context),
-          ),
           actions: [
-            if (!isEditing)
-              IconButton(
-                icon: const Icon(Icons.edit),
-                onPressed: () {
-                  setState(() {
-                    isEditing = true;
-                  });
-                },
-              ),
+            IconButton(
+              icon: const Icon(Icons.logout),
+              onPressed: logout,
+            ),
           ],
         ),
-        backgroundColor: Colors.white, // Latar belakang gelap untuk kontras teks terang
+        backgroundColor: Colors.white,
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: ListView(
@@ -141,10 +163,30 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               const SizedBox(height: 20),
               if (isEditing)
+                Column(
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: saveProfile,
+                      icon: const Icon(Icons.save),
+                      label: const Text('Simpan'),
+                    ),
+                    const SizedBox(height: 20),
+                    OutlinedButton.icon(
+                      onPressed: cancelEdit,
+                      icon: const Icon(Icons.cancel),
+                      label: const Text('Batal'),
+                    ),
+                  ],
+                ),
+              if (!isEditing)
                 ElevatedButton.icon(
-                  onPressed: saveProfile,
-                  icon: const Icon(Icons.save),
-                  label: const Text('Simpan'),
+                  onPressed: () {
+                    setState(() {
+                      isEditing = true;
+                    });
+                  },
+                  icon: const Icon(Icons.edit),
+                  label: const Text('Edit Profil'),
                 ),
             ],
           ),
