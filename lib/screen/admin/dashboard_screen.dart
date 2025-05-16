@@ -21,11 +21,11 @@ class DashboardScreen extends StatelessWidget {
                 bottomRight: Radius.circular(50),
               ),
             ),
-            child: Row(
+            child: const Row(
               children: [
-                const Icon(Icons.arrow_back, color: Colors.white),
-                const Spacer(),
-                const Text(
+                Icon(Icons.arrow_back, color: Colors.white),
+                Spacer(),
+                Text(
                   'DASHBOARD',
                   style: TextStyle(
                     color: Colors.white,
@@ -34,7 +34,7 @@ class DashboardScreen extends StatelessWidget {
                     letterSpacing: 1,
                   ),
                 ),
-                const Spacer(),
+                Spacer(),
               ],
             ),
           ),
@@ -57,8 +57,8 @@ class DashboardScreen extends StatelessWidget {
                     color: const Color(0xFFE0E7FF),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Row(
-                    children: const [
+                  child: const Row(
+                    children: [
                       Text('Today', style: TextStyle(color: Colors.black)),
                       Icon(Icons.arrow_drop_down, size: 20),
                     ],
@@ -107,9 +107,9 @@ class DashboardScreen extends StatelessWidget {
                 color: const Color(0xFFD6DFFF),
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: Row(
+              child: const Row(
                 mainAxisSize: MainAxisSize.min,
-                children: const [
+                children: [
                   Icon(Icons.assignment, color: Colors.black),
                   SizedBox(width: 10),
                   Text(

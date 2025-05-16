@@ -20,8 +20,8 @@ class DaftarMenuPesanan extends StatelessWidget {
               color: Color(0xFF5865F2),
               borderRadius: BorderRadius.only(bottomRight: Radius.circular(50)),
             ),
-            child: Row(
-              children: const [
+            child: const Row(
+              children: [
                 Icon(Icons.arrow_back, color: Colors.white),
                 Spacer(),
                 Text(
