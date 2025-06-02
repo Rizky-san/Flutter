@@ -4,7 +4,6 @@ import 'package:flutter_firebase/screen/admin/pesanan/pesanan_siap.dart';
 import 'package:flutter_firebase/screen/admin/pesanan/pesanan_dibatalkan.dart';
 import 'package:flutter_firebase/screen/admin/pesanan/pesanan_selesai.dart';
 
-
 class DaftarMenuPesanan extends StatelessWidget {
   const DaftarMenuPesanan({super.key});
 
@@ -14,32 +13,44 @@ class DaftarMenuPesanan extends StatelessWidget {
       backgroundColor: Colors.white,
       body: Column(
         children: [
+          // Header dengan tombol kembali
           Container(
             padding: const EdgeInsets.only(top: 50, left: 16, right: 16, bottom: 20),
             decoration: const BoxDecoration(
               color: Color(0xFF5865F2),
               borderRadius: BorderRadius.only(bottomRight: Radius.circular(50)),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.arrow_back, color: Colors.white),
-                Spacer(),
-                Text(
-                  'Pesanan',
-                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
                 ),
-                Spacer(),
+                const Spacer(),
+                const Text(
+                  'Pesanan',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Spacer(),
               ],
             ),
           ),
           const SizedBox(height: 20),
-          const Text('Daftar Menu', style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text(
+            'Daftar Menu',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 20),
           _buildMenuButton(context, Icons.note_alt, 'Konfirmasi Pesanan', const DaftarPesanan()),
-          _buildMenuButton(context, Icons.note_alt, 'Pesanan Siap', const PesananSiap()),
-          _buildMenuButton(context, Icons.note_alt, 'Pesanan Dibatalkan', const PesananDibatalkan()),
-          _buildMenuButton(context, Icons.note_alt, 'daftar Riwayat', const PesananSelesai()),
-
+          _buildMenuButton(context, Icons.kitchen, 'Pesanan Siap', const PesananSiap()),
+          _buildMenuButton(context, Icons.cancel, 'Pesanan Dibatalkan', const PesananDibatalkan()),
+          _buildMenuButton(context, Icons.history, 'Daftar Riwayat', const PesananSelesai()),
         ],
       ),
     );
@@ -56,7 +67,10 @@ class DaftarMenuPesanan extends StatelessWidget {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => page));
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => page),
+          );
         },
         icon: Icon(icon),
         label: Text(label),

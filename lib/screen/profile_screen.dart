@@ -18,7 +18,7 @@ class _ProfilePageState extends State<ProfilePage> {
   bool isEditing = false;
   bool isLoading = true;
 
-  // Data backup untuk tombol Batal
+  // Backup data asli
   String _originalNama = '';
   String _originalTelepon = '';
   String _originalAlamat = '';
@@ -76,7 +76,6 @@ class _ProfilePageState extends State<ProfilePage> {
       'email': email,
     });
 
-    // Update data backup setelah simpan
     _originalNama = namaController.text;
     _originalTelepon = teleponController.text;
     _originalAlamat = alamatController.text;
@@ -104,6 +103,31 @@ class _ProfilePageState extends State<ProfilePage> {
     if (context.mounted) {
       Navigator.of(context).pushReplacementNamed('/login');
     }
+  }
+
+  void _showTentangKamiDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Text('Tentang Kami'),
+          content: const Text(
+            'No : 082120822494\n'
+            'Alamat : Jln. Bima Basuki, Indramayu',
+            style: TextStyle(fontSize: 16),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Tutup'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -190,6 +214,13 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
             ],
           ),
+        ),
+
+        /// 👇 Tombol Tentang Kami
+        floatingActionButton: FloatingActionButton(
+          onPressed: _showTentangKamiDialog,
+          backgroundColor: Colors.deepPurple,
+          child: const Icon(Icons.info_outline),
         ),
       ),
     );
