@@ -2,14 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+class AdminProfilePage extends StatefulWidget {
+  const AdminProfilePage({super.key});
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  State<AdminProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfilePageState extends State<AdminProfilePage> {
   final uid = FirebaseAuth.instance.currentUser!.uid;
   final TextEditingController namaController = TextEditingController();
   final TextEditingController teleponController = TextEditingController();
@@ -101,35 +101,9 @@ class _ProfilePageState extends State<ProfilePage> {
 Future<void> logout() async {
   await FirebaseAuth.instance.signOut();
   if (context.mounted) {
-    Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+    Navigator.of(context).pushNamedAndRemoveUntil('/auth', (route) => false);
   }
 }
-
-
-  void _showTentangKamiDialog() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: const Text('Tentang Kami'),
-          content: const Text(
-            'No : 082120822494\n'
-            'Alamat : Jln. Bima Basuki, Indramayu',
-            style: TextStyle(fontSize: 16),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Tutup'),
-            ),
-          ],
-        );
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -145,7 +119,7 @@ Future<void> logout() async {
       ),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Profil Pengguna"),
+          title: const Text("Profil Milik Admin"),
           actions: [
             IconButton(
               icon: const Icon(Icons.logout),
@@ -215,13 +189,6 @@ Future<void> logout() async {
                 ),
             ],
           ),
-        ),
-
-        /// 👇 Tombol Tentang Kami
-        floatingActionButton: FloatingActionButton(
-          onPressed: _showTentangKamiDialog,
-          backgroundColor: Colors.deepPurple,
-          child: const Icon(Icons.info_outline),
         ),
       ),
     );
